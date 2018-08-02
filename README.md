@@ -1,0 +1,1 @@
+# garlicoin-miner-nodejs
