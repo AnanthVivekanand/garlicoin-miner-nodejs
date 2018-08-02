@@ -1,0 +1,20 @@
+{
+  "name": "garlicoin-miner-nodejs",
+  "version": "0.1.0",
+  "description": "Node.js hash functions for Garlicoin",
+  "main": "index.js",
+  "license": "MIT",
+  "repository" : { 
+    "type" : "git", 
+    "url" : "https://github.com/KorkyMonster/garlicoin-miner-nodejs.git"
+  },
+  "dependencies": {
+    "nan": "latest",
+    "bindings": "latest",
+    "node-gyp": "latest"
+  },
+  "scripts": {
+    "test": "node example.js"
+  },
+  "gypfile": true
+}
