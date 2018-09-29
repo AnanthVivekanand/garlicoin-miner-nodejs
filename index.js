@@ -13,13 +13,22 @@ class Miner {
 		// The "bits" variable is a packed representation of the Difficulty in 8 bytes, to unpack it:
 		// First two bytes make the "exponent", and the following 4 bytes make the "mantissa":
 		// https://en.bitcoin.it/wiki/Difficulty#What_is_the_formula_for_difficulty
+		
+		//NETWORK TARGET
 		const bits = parseInt('0x' + block.bits, 16);
+/*
 		const exponent = bits >> 24;
 		const mantissa = bits & 0xFFFFFF;
 		const target = (mantissa * (2 ** (8 * (exponent - 3)))).toString('16');
 
 		// Make target a Buffer object
 		this.targetBuffer = Buffer.from('0'.repeat(64 - target.length) + target, 'hex');
+*/
+		
+		//POOL TARGET
+		const maxTarget = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
+                this.target = maxTarget / block.diff;
+                console.log(this.target);
 
 		// Create little-endian long int (4 bytes) with the version (2) on the first byte
 		this.versionBuffer = Buffer.alloc(4);
@@ -28,11 +37,14 @@ class Miner {
 		// Reverse the previous Block Hash and the merkle_root
 		this.reversedPrevBlockHash = this.reverseBuffer(prevBlockHash);
 		this.reversedMrklRoot = this.reverseBuffer(mrklRoot);
-
+		this.prevBlockHash = prevBlockHash;
+		this.mrklRoot = mrklRoot;
 		// Buffer with time (4 Bytes), bits (4 Bytes) and nonce (4 Bytes) (later added and updated on each hash)
 		this.timeBitsNonceBuffer = Buffer.alloc(12);
-		this.timeBitsNonceBuffer.writeInt32LE(time, 0);
-		this.timeBitsNonceBuffer.writeInt32LE(bits, 4);
+		this.timeBitsNonceBuffer.write(time, 0, 4, 'hex');
+		this.timeBitsNonceBuffer.write(block.bits, 4, 8, 'hex');
+		console.log(block.bits);
+		console.log("This is the time bits nonce buffer " + this.timeBitsNonceBuffer.toString('hex'));
 	}
 
 	reverseBuffer(src) {
@@ -56,7 +68,8 @@ class Miner {
 		// Update nonce in header Buffer
 		this.timeBitsNonceBuffer.writeInt32LE(nonce, 8);
 		// Double sha256 hash the header
-		return this.reverseBuffer(this.allium(Buffer.concat([this.versionBuffer, this.reversedPrevBlockHash, this.reversedMrklRoot, this.timeBitsNonceBuffer])));
+		console.log(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer]).toString('hex'));
+		return this.reverseBuffer(this.allium(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer])));
 	}
 
 	reverseString(str) {
@@ -70,10 +83,10 @@ class Miner {
 		// This is a (maybe easier) way to build the header from scratch, it should generate the same hash:
 		console.log(`\n[Verify Nonce ${checknonce} ${checknonce.toString(16)}]`);
 		const version = this.reverseString(block.version.toString(16));
-		const prevhash = this.reverseString(block.previousblockhash);
-		const merkleroot = this.reverseString(block.merkleroot);
-		const nbits = this.reverseString(block.bits);
-		const ntime = this.reverseString(block.time.toString(16));
+		const prevhash = (block.previousblockhash);
+		const merkleroot = (block.merkleroot);
+		const nbits = (block.bits);
+		const ntime = (block.time);
 		const nonce = this.reverseString(checknonce.toString(16));
 
 		console.log('        ', chalk.gray('version') + ' '.repeat(version.length - 7) + chalk.cyanBright('prevhash') + ' '.repeat(prevhash.length - 8) + chalk.blue('merkleroot') + ' '.repeat(prevhash.length - 10) + chalk.magenta('ntime') + ' '.repeat(ntime.length - 5) + chalk.cyan('nbits') + ' '.repeat(nbits.length - 5) + chalk.yellow('nonce'));
@@ -81,10 +94,10 @@ class Miner {
 
 		const header = version + prevhash + merkleroot + ntime + nbits + nonce;
 		const hash = this.reverseString(this.allium(Buffer.from(header, 'hex')));
-		console.log('Target: ', this.getTarget().toString('hex'));
-		console.log('Hash:   ', hash.toString('hex'));
+		console.log('Target: ', this.getTarget().toString(16));
+		console.log('Hash:   ', hash.toString(16));
 
-		const isvalid = this.getTarget().toString('hex') > hash;
+		const isvalid = this.getTarget() > parseInt(hash.toString('hex'), 16);
 		const result = isvalid ? 'valid' : 'not a valid';
 		const color = isvalid ? chalk.green : chalk.red;
 		console.log('Result: ', color(`${checknonce} is a ${result} nonce`));
@@ -92,11 +105,12 @@ class Miner {
 	}
 
 	getTarget() {
-		return this.targetBuffer;
+		return this.target; //return this.targetBuffer;
 	}
 
 	checkHash(hash) {
-		return Buffer.compare(this.getTarget(), hash) > 0;
+		        console.log(parseInt(hash.toString('hex'), 16));
+                return (parseInt(hash.toString('hex'), 16) < this.getTarget() * 5000);
 	}
 }
 
