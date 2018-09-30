@@ -68,7 +68,7 @@ class Miner {
 		// Update nonce in header Buffer
 		this.timeBitsNonceBuffer.writeInt32LE(nonce, 8);
 		// Double sha256 hash the header
-		console.log(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer]).toString('hex'));
+//		console.log(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer]).toString('hex'));
 		return this.reverseBuffer(this.allium(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer])));
 	}
 
@@ -109,8 +109,8 @@ class Miner {
 	}
 
 	checkHash(hash) {
-		        console.log(parseInt(hash.toString('hex'), 16));
-                return (parseInt(hash.toString('hex'), 16) < this.getTarget() * 5000);
+//		        console.log(parseInt(hash.toString('hex'), 16));
+                return (parseInt(hash.toString('hex'), 16) < this.getTarget() * 500);
 	}
 }
 

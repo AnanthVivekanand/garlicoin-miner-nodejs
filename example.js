@@ -3,6 +3,8 @@ const BTCMiner = require('.');
 const crypto = require('crypto');
 var testBlocks = [];
 let merkle = require("./merkleroot.js");
+let nonce = 0;
+let miner = null;
 const Client = client({
   server: "grlcgang.com",
   port: 3333,
@@ -90,7 +92,7 @@ const changePrevhashEndianness = (string) => {
 }
 
 
-function buildBlock(newWork) {
+async function buildBlock(newWork) {
 console.log(newWork);
 /*
 coinbase = "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff270362f401062f503253482f049b8f175308";
@@ -192,17 +194,17 @@ testBlocks = [
                 initialNonce: 1717644815 // Correct nonce will be:  1717644825
         },
 ];
-miner = null;
+console.log("NEW WORK WAS PUT INTO BLOCK FORMAT");
 
 }
- setTimeout(function(){ startMining() }, 3000);
 
-function startMining() {
+
+async function startMining() {
 const selectedBlock = 0; // CHANGE THIS TO 1 to use the second testBlock
 const {block} = testBlocks[selectedBlock];
-let nonce = testBlocks[selectedBlock].initialNonce;
+nonce = testBlocks[selectedBlock].initialNonce;
 
-let miner = new BTCMiner(block);
+miner = new BTCMiner(block);
 
 // Calculate the target based on current dificulty for this block (block.bits)
 const target = miner.getTarget();
@@ -216,8 +218,14 @@ console.log('\n[Start Mining with initial nonce:', nonce, ']');
 while (nonce < 8561950000 && !found) {
 	hash = miner.getHash(nonce);
 	found = miner.checkHash(hash);
-	console.log(hash.toString('hex'), nonce, found ? '<- nonce FOUND!!' : '');
-	if (found & miner) {
+	//console.log(hash.toString('hex'), nonce, found ? '<- nonce FOUND!!' : '');
+	if (nonce % 50000 === 0) {
+		  console.log("Nonce: " + nonce);
+		setTimeout(function() {
+    console.log('Blah blah blah blah extra-blah');
+}, 500);
+	} 
+	if (found) {
 		miner.verifyNonce(block, nonce);
 		Client.submit("KorkyMonster.testing", testBlocks[0].block.jobId, "00000000", changeEndianness(testBlocks[0].block.time), (nonce.toString(16)));
 	}
@@ -234,6 +242,9 @@ function sha256(buf) {
 function doublesha(buf) {
         return sha256(sha256(buf));
 }
+
+
+ setTimeout(function(){ startMining() }, 3000);
 
 
 /*
