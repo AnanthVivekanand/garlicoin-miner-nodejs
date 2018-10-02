@@ -5,6 +5,7 @@ var garlicoinhash = require('bindings')('garlicoinhash');
 class Miner {
 	constructor(block) {
 		// Initialize local variables with Block data
+		this.block = block;
 		const prevBlockHash = Buffer.from(block.previousblockhash, 'hex');
 		const mrklRoot = Buffer.from(block.merkleroot, 'hex');
 		const {time, version} = block;
@@ -45,6 +46,7 @@ class Miner {
 		this.timeBitsNonceBuffer.write(block.bits, 4, 8, 'hex');
 		console.log(block.bits);
 		console.log("This is the time bits nonce buffer " + this.timeBitsNonceBuffer.toString('hex'));
+		this.startMining();
 	}
 
 	reverseBuffer(src) {
@@ -71,7 +73,7 @@ class Miner {
 //		console.log(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer]).toString('hex'));
 		return this.reverseBuffer(this.allium(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer])));
 	}
-
+	
 	reverseString(str) {
 		if (str.length < 8) { // Make sure the HEX value from the integers fill 4 bytes when converted to buffer, so that they are reversed correctly
 			str = '0'.repeat(8 - str.length) + str;
@@ -112,6 +114,37 @@ class Miner {
 //		        console.log(parseInt(hash.toString('hex'), 16));
                 return (parseInt(hash.toString('hex'), 16) < this.getTarget() * 500);
 	}
+	startMining() {
+		let hash;
+let found = false;
+let nonce = 1717644815;
+console.log('\n[Start Mining with initial nonce:', nonce, ']');
+while (nonce < 8561950000 && !found) {
+        hash = this.getHash(nonce);
+        found = this.checkHash(hash);
+        //console.log(hash.toString('hex'), nonce, found ? '<- nonce FOUND!!' : '');
+        if (nonce % 50000 === 0) {
+                  console.log("Nonce: " + nonce);
+                setTimeout(function() {
+    console.log('Blah blah blah blah extra-blah');
+}, 500);
+        } 
+        if (found) {
+		parentPort.postMessage({submit: ["KorkyMonster.testing", workerData.block.jobId, "00000000", (workerData.block.time), (nonce.toString(16))]});
+                this.verifyNonce(this.block, nonce);
+//                Client.submit("KorkyMonster.testing", testBlocks[0].block.jobId, "00000000", changeEndianness(testBlocks[0].block.time), (nonce.toString(16)));
+        }
+        nonce++;
 }
 
-module.exports = Miner;
+	}
+}
+
+const {
+  Worker, isMainThread, parentPort, workerData
+} = require('worker_threads');
+
+//module.exports = Miner;
+parentPort.postMessage("Hi");
+//parentPort.on('message', (message) => console.log("Worker received message: " + message));
+let miner = new Miner(workerData.block);

@@ -308,8 +308,8 @@ ifeq ($(strip $(foreach prefix,$(NO_LOAD),\
 endif
 
 quiet_cmd_regen_makefile = ACTION Regenerating $@
-cmd_regen_makefile = cd $(srcdir); /home/raptor/garlicoinhash/node_modules/node-gyp/gyp/gyp_main.py -fmake --ignore-environment "--toplevel-dir=." -I/home/raptor/garlicoinhash/build/config.gypi -I/home/raptor/garlicoinhash/node_modules/node-gyp/addon.gypi -I/home/raptor/.node-gyp/8.10.0/include/node/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/home/raptor/.node-gyp/8.10.0" "-Dnode_gyp_dir=/home/raptor/garlicoinhash/node_modules/node-gyp" "-Dnode_lib_file=/home/raptor/.node-gyp/8.10.0/<(target_arch)/node.lib" "-Dmodule_root_dir=/home/raptor/garlicoinhash" "-Dnode_engine=v8" binding.gyp
-Makefile: $(srcdir)/../.node-gyp/8.10.0/include/node/common.gypi $(srcdir)/node_modules/node-gyp/addon.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp
+cmd_regen_makefile = cd $(srcdir); /home/raptor/garlicoin-miner-nodejs/node_modules/node-gyp/gyp/gyp_main.py -fmake --ignore-environment "--toplevel-dir=." -I/home/raptor/garlicoin-miner-nodejs/build/config.gypi -I/home/raptor/garlicoin-miner-nodejs/node_modules/node-gyp/addon.gypi -I/home/raptor/.node-gyp/10.10.0/include/node/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/home/raptor/.node-gyp/10.10.0" "-Dnode_gyp_dir=/home/raptor/garlicoin-miner-nodejs/node_modules/node-gyp" "-Dnode_lib_file=/home/raptor/.node-gyp/10.10.0/<(target_arch)/node.lib" "-Dmodule_root_dir=/home/raptor/garlicoin-miner-nodejs" "-Dnode_engine=v8" binding.gyp
+Makefile: $(srcdir)/node_modules/node-gyp/addon.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp $(srcdir)/../.node-gyp/10.10.0/include/node/common.gypi
 	$(call do_cmd,regen_makefile)
 
 # "all" is a concatenation of the "all" targets from all the included

@@ -1,10 +1,12 @@
 const client = require('./stratum-client/index.js');
-const BTCMiner = require('.');
+//const BTCMiner = require('./index.js');
 const crypto = require('crypto');
 var testBlocks = [];
-let merkle = require("./merkleroot.js");
 let nonce = 0;
 let miner = null;
+const {
+  Worker, MessageChannel, MessagePort, isMainThread, parentPort
+} = require('worker_threads');
 const Client = client({
   server: "grlcgang.com",
   port: 3333,
@@ -112,7 +114,7 @@ console.log("This is our coinbase: " + coinbase);
 
 //DOUBLEHASH COINBASE
 
-    let a1 = (new Buffer(coinbase, "hex"));  //.reverse();
+    let a1 = (Buffer.from(coinbase, "hex"));  //.reverse();
     let firstHash = crypto.createHash('sha256').update(a1).digest();
     let hashOfHash =  crypto.createHash('sha256').update(firstHash).digest();
     //hashOfHash.reverse();   
@@ -155,8 +157,8 @@ for (var i = 0; i < merkle_branches.length; i++) {
 merkle_root = hashOfHash.toString('hex');
 
 for (let i = 0; i < merkle_branches.length; i++) {
-    let a1 = (new Buffer(merkle_root, "hex"));
-    let b1 = (new Buffer(merkle_branches[i], "hex"));  
+    let a1 = (Buffer.from(merkle_root, "hex"));
+    let b1 = (Buffer.from(merkle_branches[i], "hex"));  
     let c = (Buffer.concat([a1,b1]));    
     let firstHash = crypto.createHash('sha256').update(c).digest();
     let hashOfHash =  crypto.createHash('sha256').update(firstHash).digest();
@@ -197,42 +199,22 @@ testBlocks = [
 console.log("NEW WORK WAS PUT INTO BLOCK FORMAT");
 
 }
-
+function messageFromWorker(message) {
+if (message.submit) {
+console.log(message.submit);
+Client.submit(message.submit[0], message.submit[1], message.submit[2], changeEndianness(message.submit[3]), (message.submit[4]));
+}
+}
 
 async function startMining() {
 const selectedBlock = 0; // CHANGE THIS TO 1 to use the second testBlock
 const {block} = testBlocks[selectedBlock];
 nonce = testBlocks[selectedBlock].initialNonce;
+let worker = new Worker("./index.js", {workerData: {block: block}});
+worker.on('message', (message) => messageFromWorker(message));
+//miner = new BTCMiner(block);
 
-miner = new BTCMiner(block);
-
-// Calculate the target based on current dificulty for this block (block.bits)
-const target = miner.getTarget();
-console.log('The target for this block is:');
-console.log(target.toString(16));
-
-let hash;
-let found = false;
-
-console.log('\n[Start Mining with initial nonce:', nonce, ']');
-while (nonce < 8561950000 && !found) {
-	hash = miner.getHash(nonce);
-	found = miner.checkHash(hash);
-	//console.log(hash.toString('hex'), nonce, found ? '<- nonce FOUND!!' : '');
-	if (nonce % 50000 === 0) {
-		  console.log("Nonce: " + nonce);
-		setTimeout(function() {
-    console.log('Blah blah blah blah extra-blah');
-}, 500);
-	} 
-	if (found) {
-		miner.verifyNonce(block, nonce);
-		Client.submit("KorkyMonster.testing", testBlocks[0].block.jobId, "00000000", changeEndianness(testBlocks[0].block.time), (nonce.toString(16)));
-	}
-	nonce++;
 }
-}
-
 
 //UTILITY FUNCTIONS
 function sha256(buf) {
