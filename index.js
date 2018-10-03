@@ -124,10 +124,8 @@ while (nonce < 8561950000 && !found) {
         found = this.checkHash(hash);
         //console.log(hash.toString('hex'), nonce, found ? '<- nonce FOUND!!' : '');
         if (nonce % 50000 === 0) {
-                  console.log("Nonce: " + nonce);
-                setTimeout(function() {
-    console.log('Blah blah blah blah extra-blah');
-}, 500);
+		                parentPort.postMessage({nonce: nonce});
+
         } 
         if (found) {
 		parentPort.postMessage({submit: ["KorkyMonster.testing", workerData.block.jobId, "00000000", (workerData.block.time), (nonce.toString(16))]});

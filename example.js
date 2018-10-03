@@ -204,6 +204,9 @@ if (message.submit) {
 console.log(message.submit);
 Client.submit(message.submit[0], message.submit[1], message.submit[2], changeEndianness(message.submit[3]), (message.submit[4]));
 }
+if (message.nonce) {
+console.log("Nonce: " + message.nonce);
+}
 }
 
 async function startMining() {
