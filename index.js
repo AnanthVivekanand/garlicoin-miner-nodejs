@@ -29,7 +29,7 @@ class Miner {
 		//POOL TARGET
 		const maxTarget = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
                 this.target = maxTarget / block.diff;
-                console.log(this.target);
+                //console.log(this.target);
 
 		// Create little-endian long int (4 bytes) with the version (2) on the first byte
 		this.versionBuffer = Buffer.alloc(4);
@@ -44,8 +44,11 @@ class Miner {
 		this.timeBitsNonceBuffer = Buffer.alloc(12);
 		this.timeBitsNonceBuffer.write(time, 0, 4, 'hex');
 		this.timeBitsNonceBuffer.write(block.bits, 4, 8, 'hex');
-		console.log(block.bits);
-		console.log("This is the time bits nonce buffer " + this.timeBitsNonceBuffer.toString('hex'));
+
+		this.versionPrevhashRoot = Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot]);
+
+		//console.log(block.bits);
+		//console.log("This is the time bits nonce buffer " + this.timeBitsNonceBuffer.toString('hex'));
 		this.startMining();
 	}
 
@@ -71,7 +74,7 @@ class Miner {
 		this.timeBitsNonceBuffer.writeInt32LE(nonce, 8);
 		// Double sha256 hash the header
 //		console.log(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer]).toString('hex'));
-		return this.reverseBuffer(this.allium(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer])));
+		return this.reverseBuffer(this.allium(Buffer.concat([this.versionPrevhashRoot, this.timeBitsNonceBuffer])));
 	}
 	
 	reverseString(str) {
@@ -96,10 +99,10 @@ class Miner {
 
 		const header = version + prevhash + merkleroot + ntime + nbits + nonce;
 		const hash = this.reverseString(this.allium(Buffer.from(header, 'hex')));
-		console.log('Target: ', this.getTarget().toString(16));
+		console.log('Target: ', this.target.toString(16));
 		console.log('Hash:   ', hash.toString(16));
 
-		const isvalid = this.getTarget() > parseInt(hash.toString('hex'), 16);
+		const isvalid = this.target > parseInt(hash.toString('hex'), 16);
 		const result = isvalid ? 'valid' : 'not a valid';
 		const color = isvalid ? chalk.green : chalk.red;
 		console.log('Result: ', color(`${checknonce} is a ${result} nonce`));
@@ -112,12 +115,12 @@ class Miner {
 
 	checkHash(hash) {
 //		        console.log(parseInt(hash.toString('hex'), 16));
-                return (parseInt(hash.toString('hex'), 16) < this.getTarget() * 500);
+                return (parseInt(hash.toString('hex'), 16) < this.target * 500);
 	}
 	startMining() {
 		let hash;
 let found = false;
-let nonce = 1717644815;
+let nonce = this.block.initialNonce;
 console.log('\n[Start Mining with initial nonce:', nonce, ']');
 while (nonce < 8561950000 && !found) {
         hash = this.getHash(nonce);
@@ -143,6 +146,6 @@ const {
 } = require('worker_threads');
 
 //module.exports = Miner;
-parentPort.postMessage("Hi");
+//parentPort.postMessage("Hi");
 //parentPort.on('message', (message) => console.log("Worker received message: " + message));
 let miner = new Miner(workerData.block);

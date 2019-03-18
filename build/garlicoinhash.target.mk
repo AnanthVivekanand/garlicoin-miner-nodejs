@@ -35,13 +35,13 @@ CFLAGS_CC_Debug := \
 	-std=gnu++1y
 
 INCS_Debug := \
-	-I/home/raptor/.node-gyp/10.10.0/include/node \
-	-I/home/raptor/.node-gyp/10.10.0/src \
-	-I/home/raptor/.node-gyp/10.10.0/deps/openssl/config \
-	-I/home/raptor/.node-gyp/10.10.0/deps/openssl/openssl/include \
-	-I/home/raptor/.node-gyp/10.10.0/deps/uv/include \
-	-I/home/raptor/.node-gyp/10.10.0/deps/zlib \
-	-I/home/raptor/.node-gyp/10.10.0/deps/v8/include \
+	-I/home/raptor/.node-gyp/11.9.0/include/node \
+	-I/home/raptor/.node-gyp/11.9.0/src \
+	-I/home/raptor/.node-gyp/11.9.0/deps/openssl/config \
+	-I/home/raptor/.node-gyp/11.9.0/deps/openssl/openssl/include \
+	-I/home/raptor/.node-gyp/11.9.0/deps/uv/include \
+	-I/home/raptor/.node-gyp/11.9.0/deps/zlib \
+	-I/home/raptor/.node-gyp/11.9.0/deps/v8/include \
 	-I$(srcdir)/node_modules/nan
 
 DEFS_Release := \
@@ -74,13 +74,13 @@ CFLAGS_CC_Release := \
 	-std=gnu++1y
 
 INCS_Release := \
-	-I/home/raptor/.node-gyp/10.10.0/include/node \
-	-I/home/raptor/.node-gyp/10.10.0/src \
-	-I/home/raptor/.node-gyp/10.10.0/deps/openssl/config \
-	-I/home/raptor/.node-gyp/10.10.0/deps/openssl/openssl/include \
-	-I/home/raptor/.node-gyp/10.10.0/deps/uv/include \
-	-I/home/raptor/.node-gyp/10.10.0/deps/zlib \
-	-I/home/raptor/.node-gyp/10.10.0/deps/v8/include \
+	-I/home/raptor/.node-gyp/11.9.0/include/node \
+	-I/home/raptor/.node-gyp/11.9.0/src \
+	-I/home/raptor/.node-gyp/11.9.0/deps/openssl/config \
+	-I/home/raptor/.node-gyp/11.9.0/deps/openssl/openssl/include \
+	-I/home/raptor/.node-gyp/11.9.0/deps/uv/include \
+	-I/home/raptor/.node-gyp/11.9.0/deps/zlib \
+	-I/home/raptor/.node-gyp/11.9.0/deps/v8/include \
 	-I$(srcdir)/node_modules/nan
 
 OBJS := \

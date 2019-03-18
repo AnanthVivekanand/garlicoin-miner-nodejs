@@ -1,0 +1,28 @@
+//Declare dependencies and import them
+const client = require('./stratum-client/index.js');
+const {
+  Worker, MessageChannel, MessagePort, isMainThread, parentPort
+} = require('worker_threads');
+const crypto = require('crypto');
+const readline = require('readline');
+
+
+
+const Client = client({
+  server: "grlcgang.com",
+  port: 3333,
+  worker: "KorkyMonster.testing",
+  password: "x",
+  autoReconnectOnError: true,
+  onConnect: () => console.log('Connected to server'),
+  onClose: () => console.log('Connection closed'),
+  onError: (error) => console.log('Error', error.message),
+//  onAuthorizeSuccess: () => Client.submit("KorkyMonster.testing", "cb06", "00000000", "gf$
+  onAuthorizeFail: () => console.log('WORKER FAILED TO AUTHORIZE OH NOOOOOO'),
+  //onNewDifficulty: (newDiff) => setDiff(newDiff),
+  onSubscribe: (subscribeData) => console.log('[Subscribe]', subscribeData),
+  onNewMiningWork: (newWork) => buildBlock(newWork),
+  onSubmitWorkSuccess: (error, result) => console.log("Yay! Our work was accepted!"),
+  onSubmitWorkFail: (error, result) => console.log("Oh no! Our work was refused because: "),
+});
+
