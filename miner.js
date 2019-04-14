@@ -4,6 +4,10 @@ const crypto = require('crypto'); //Hashing libraries for SHA256
 const {
   Worker, MessageChannel, MessagePort, isMainThread, parentPort
 } = require('worker_threads');
+
+
+
+var Client;
 const readline = require('readline');
 const rl = readline.createInterface({
   input: process.stdin,
@@ -51,7 +55,7 @@ function getPoolInfo() {
 getPoolInfo();
 
 function startConnection() {
-const Client = client({
+Client = client({
   server: options.address,
   port: options.port,
   worker: options.worker,
@@ -115,7 +119,7 @@ blocks = [
                         bits: changeEndianness(newWork.nbits),
                         diff: options.diff,
                         jobId: newWork.jobId,
-			initialNonce: 1717644816
+//			initialNonce: 1717644816
                 },
         },
 ];
@@ -129,18 +133,48 @@ startMining(blocks);
 function startMining(blocks) {
   const selectedBlock = 0;
   const {block} = blocks[selectedBlock];
-    for (var i = 0; i < 4; i++) {
-      if (workers[i] != null) {
-        workers[i].terminate(function () {
-          workers[i] = new Worker("./index.js", {workerData: {block: block}});
-          workers[i].on('message', (message) => messageFromWorker(message));
-        })
-      } else if (workers[i] == null) {
-        workers[i] = new Worker("./index.js", {workerData: {block: block}});
-        workers[i].on('message', (message) => messageFromWorker(message));
-      }
-    }
-  
+  while (workers[0]) 
+    workers.shift().terminate();
+
+console.log(workers);
+/*
+  worker = new Worker("./index.js", {workerData: {block: block}});
+  worker.on('message', (message) => messageFromWorker(message));
+  workers.push(worker);
+*/
+workers.push(new Worker("./worker.js", {workerData: {block: block}}).on('message', (message) => messageFromWorker(message)));
+console.log(workers);
+
+workers.push(new Worker("./worker.js", {workerData: {block: block}}).on('message', (message) => messageFromWorker(message)));
+console.log(workers);
+
+
+workers.push(new Worker("./worker.js", {workerData: {block: block}}).on('message', (message) => messageFromWorker(message)));
+console.log(workers);
+
+workers.push(new Worker("./worker.js", {workerData: {block: block}}).on('message', (message) => messageFromWorker(message)));
+console.log(workers);
+
+/*
+console.log(workers);
+  worker = new Worker("./index.js", {workerData: {block: block}});
+  worker.on('message', (message) => messageFromWorker(message));
+  workers.push(worker);
+
+console.log(workers);
+  worker = new Worker("./index.js", {workerData: {block: block}});
+  worker.on('message', (message) => messageFromWorker(message));
+  workers.push(worker);
+
+
+console.log(workers);
+  worker = new Worker("./index.js", {workerData: {block: block}});
+  worker.on('message', (message) => messageFromWorker(message));
+  workers.push(worker);
+*/
+
+//workers[0] = new Worker("./index.js", {workerData: {block: block}});
+
 }
 
 function messageFromWorker(message) {
@@ -176,4 +210,6 @@ const changePrevhashEndianness = (string) => {
         pieces = pieces.join('');
         return pieces;
 }
+
+
 

@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const chalk = require('chalk');
-var garlicoinhash = require('bindings')('garlicoinhash');
-
+const garlicoinhash = require('bindings')('garlicoinhash');
+//parentPort.postMessage("Hi");
 class Miner {
 	constructor(block) {
 		// Initialize local variables with Block data
@@ -69,6 +69,35 @@ class Miner {
 		return this.sha256(this.sha256(buf));
 	}
 */
+	randomNonce() {
+	/*    var rando_arr = new Array(Math.floor(Math.random() * 255),
+                              Math.floor(Math.random() * 255),
+                              Math.floor(Math.random() * 255),
+                              Math.floor(Math.random() * 255));
+  	  return this.buf2Hex(rando_arr);*/
+	return Math.floor(Math.random() * (2147483647 - 286331153)) + 286331153;
+	}
+
+
+	buf2Hex(buf) {
+  	  var r = '';
+
+	    for (var i = 0, x = buf.length; i < x; i += 1) {
+      	  r += (buf[i] <= 0xf ? '0' : '') + buf[i].toString(16);
+  	  }
+
+	    return r;
+	}
+
+
+
+
+
+
+
+
+
+
 	getHash(nonce) {
 		// Update nonce in header Buffer
 		this.timeBitsNonceBuffer.writeInt32LE(nonce, 8);
@@ -120,7 +149,7 @@ class Miner {
 	startMining() {
 		let hash;
 let found = false;
-let nonce = this.block.initialNonce;
+let nonce = this.randomNonce(4);
 console.log('\n[Start Mining with initial nonce:', nonce, ']');
 while (nonce < 8561950000 && !found) {
         hash = this.getHash(nonce);
@@ -149,3 +178,8 @@ const {
 //parentPort.postMessage("Hi");
 //parentPort.on('message', (message) => console.log("Worker received message: " + message));
 let miner = new Miner(workerData.block);
+/*
+setTimeout(function() {
+console.log(garlicoinhash);
+}, 3000);
+*/
