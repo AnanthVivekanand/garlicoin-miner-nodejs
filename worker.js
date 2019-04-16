@@ -1,9 +1,9 @@
 const crypto = require('crypto');
-const chalk = require('chalk');
 const garlicoinhash = require('bindings')('garlicoinhash');
 //parentPort.postMessage("Hi");
 class Miner {
 	constructor(block) {
+		this.bswap = require("bswap");
 		// Initialize local variables with Block data
 		this.block = block;
 		const prevBlockHash = Buffer.from(block.previousblockhash, 'hex');
@@ -28,7 +28,7 @@ class Miner {
 		
 		//POOL TARGET
 		const maxTarget = 0x00000000FFFF0000000000000000000000000000000000000000000000000000;
-                this.target = maxTarget / block.diff;
+                this.target = (maxTarget / block.diff) * 500;
                 //console.log(this.target);
 
 		// Create little-endian long int (4 bytes) with the version (2) on the first byte
@@ -89,21 +89,16 @@ class Miner {
 	    return r;
 	}
 
-
-
-
-
-
-
-
-
-
 	getHash(nonce) {
 		// Update nonce in header Buffer
 		this.timeBitsNonceBuffer.writeInt32LE(nonce, 8);
 		// Double sha256 hash the header
 //		console.log(Buffer.concat([this.versionBuffer, this.prevBlockHash, this.mrklRoot, this.timeBitsNonceBuffer]).toString('hex'));
-		return this.reverseBuffer(this.allium(Buffer.concat([this.versionPrevhashRoot, this.timeBitsNonceBuffer])));
+//		var allium = this.allium(Buffer.concat([this.versionPrevhashRoot, this.timeBitsNonceBuffer]));
+//		this.bswap(allium);
+		//parentPort.postMessage(this.bswap);
+//		return allium;
+		return (this.allium(Buffer.concat([this.versionPrevhashRoot, this.timeBitsNonceBuffer])));
 	}
 	
 	reverseString(str) {
@@ -123,8 +118,8 @@ class Miner {
 		const ntime = (block.time);
 		const nonce = this.reverseString(checknonce.toString(16));
 
-		console.log('        ', chalk.gray('version') + ' '.repeat(version.length - 7) + chalk.cyanBright('prevhash') + ' '.repeat(prevhash.length - 8) + chalk.blue('merkleroot') + ' '.repeat(prevhash.length - 10) + chalk.magenta('ntime') + ' '.repeat(ntime.length - 5) + chalk.cyan('nbits') + ' '.repeat(nbits.length - 5) + chalk.yellow('nonce'));
-		console.log('Header: ', chalk.gray(version) + chalk.cyanBright(prevhash) + chalk.blue(merkleroot) + chalk.magenta(ntime) + chalk.cyan(nbits) + chalk.yellow(nonce));
+		console.log('        ', 'version' + ' '.repeat(version.length - 7) + 'prevhash' + ' '.repeat(prevhash.length - 8) + 'merkleroot' + ' '.repeat(prevhash.length - 10) + 'ntime' + ' '.repeat(ntime.length - 5) + 'nbits' + ' '.repeat(nbits.length - 5) + 'nonce');
+		console.log('Header: ', version + prevhash + merkleroot + ntime + nbits + nonce);
 
 		const header = version + prevhash + merkleroot + ntime + nbits + nonce;
 		const hash = this.reverseString(this.allium(Buffer.from(header, 'hex')));
@@ -132,9 +127,6 @@ class Miner {
 		console.log('Hash:   ', hash.toString(16));
 
 		const isvalid = this.target > parseInt(hash.toString('hex'), 16);
-		const result = isvalid ? 'valid' : 'not a valid';
-		const color = isvalid ? chalk.green : chalk.red;
-		console.log('Result: ', color(`${checknonce} is a ${result} nonce`));
 		return isvalid;
 	}
 
@@ -144,27 +136,48 @@ class Miner {
 
 	checkHash(hash) {
 //		        console.log(parseInt(hash.toString('hex'), 16));
-                return (parseInt(hash.toString('hex'), 16) < this.target * 500);
+
+//parentPort.postMessage(hash);
+                //return (parseInt(hash.toString('hex'), 16) < this.target);
+//parentPort.postMessage(hash);
+		if (hash[31] != 0) {
+			return false;
+		}
+		else {
+//parentPort.postMessage(hash);
+			if (hash[30] == 0) {
+//parentPort.postMessage(hash);
+				return (parseInt(this.reverseBuffer(hash).toString('hex'), 16) < this.target);
+			}
+		}
+//return false;
 	}
 	startMining() {
 		let hash;
 let found = false;
 let nonce = this.randomNonce(4);
 console.log('\n[Start Mining with initial nonce:', nonce, ']');
-while (nonce < 8561950000 && !found) {
+while (nonce++) {
         hash = this.getHash(nonce);
         found = this.checkHash(hash);
-        //console.log(hash.toString('hex'), nonce, found ? '<- nonce FOUND!!' : '');
-        if (nonce % 50000 === 0) {
-		                parentPort.postMessage({nonce: nonce});
+        //console.log(hash, nonce, found ? '<- nonce FOUND!!' : '');
+        if (nonce % 50000 == 0) {
+                                if (nonce > 8561950000) {
+					nonce = this.randomNonce(4);
+				}
+		                parentPort.postMessage({nonce: nonce, workerNumber: workerData.workerNumber});
 
         } 
         if (found) {
+                parentPort.postMessage({hash: hash, length: hash.length});
 		parentPort.postMessage({submit: ["KorkyMonster.testing", workerData.block.jobId, "00000000", (workerData.block.time), (nonce.toString(16))]});
                 this.verifyNonce(this.block, nonce);
 //                Client.submit("KorkyMonster.testing", testBlocks[0].block.jobId, "00000000", changeEndianness(testBlocks[0].block.time), (nonce.toString(16)));
         }
-        nonce++;
+
+
+//nonce++;
+//found = true;
 }
 
 	}

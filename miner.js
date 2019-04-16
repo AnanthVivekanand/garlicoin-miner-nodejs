@@ -4,7 +4,7 @@ const crypto = require('crypto'); //Hashing libraries for SHA256
 const {
   Worker, MessageChannel, MessagePort, isMainThread, parentPort
 } = require('worker_threads');
-
+const os = require('os');
 
 
 var Client;
@@ -16,24 +16,39 @@ const rl = readline.createInterface({
 
 var options = {};
 var workers = [];
-
+var first_run = true;
+var desiredThreadCount = os.cpus().length;
 function getPoolInfo() {
-  rl.question('Enter address and port: (Default "grlcgang.com:3333")', function(answer) {
+  rl.question('Enter address and port: (Default "grlcgang.com:3333")\nEnter here: ', function(answer) {
     if (answer.indexOf(":") == -1) {
       answer = "grlcgang.com:3333";
     }
     options.address = (answer.split(":"))[0];
     options.port = (answer.split(":"))[1];
     console.log("The recieved info was server " + options.address + " at port " + options.port);
-  rl.question('Enter worker username and password seperated by a colon: (Default "KorkyMonster.testing:x")', function(answer) {
+  rl.question('Enter worker username and password seperated by a colon: (Default "KorkyMonster.testing:x")\nEnter here: ', function(answer) {
     if (answer.indexOf(":") == -1) {
       answer = "KorkyMonster.testing:x";
     }
     options.worker = (answer.split(":"))[0];
     options.password = (answer.split(":"))[1];
     console.log("The recieved info was worker " + options.worker + " with password " + options.password);
+
+
+  rl.question('Enter thread count to spawn. Default: ' + desiredThreadCount + "\nEnter here: ", function(answer) {
+
+    if (answer != "") {
+	desiredThreadCount = answer.replace(/\D/g,'');
+    }
+    console.log("The recieved desired thread count was " + desiredThreadCount);
+
   rl.close();
   startConnection();
+
+
+});
+
+
 
   });
 
@@ -77,6 +92,10 @@ Client = client({
 
 
 function buildBlock(newWork) {
+if (!newWork.clean_jobs && !first_run) {
+  return;
+}
+first_run = false;
 coinbase = newWork.coinb1 + newWork.extraNonce1 + "00000000" + newWork.coinb2; //Construct the coinbase transaction
 console.log("This is our coinbase: " + coinbase);
 merkle_branches = newWork.merkle_branch;
@@ -136,24 +155,15 @@ function startMining(blocks) {
   while (workers[0]) 
     workers.shift().terminate();
 
-console.log(workers);
 /*
   worker = new Worker("./index.js", {workerData: {block: block}});
   worker.on('message', (message) => messageFromWorker(message));
   workers.push(worker);
 */
-workers.push(new Worker("./worker.js", {workerData: {block: block}}).on('message', (message) => messageFromWorker(message)));
-console.log(workers);
 
-workers.push(new Worker("./worker.js", {workerData: {block: block}}).on('message', (message) => messageFromWorker(message)));
-console.log(workers);
-
-
-workers.push(new Worker("./worker.js", {workerData: {block: block}}).on('message', (message) => messageFromWorker(message)));
-console.log(workers);
-
-workers.push(new Worker("./worker.js", {workerData: {block: block}}).on('message', (message) => messageFromWorker(message)));
-console.log(workers);
+for (var i = 0; i < desiredThreadCount; i++) {
+workers.push(new Worker("./worker.js", {workerData: {block: block, workerNumber: i}}).on('message', (message) => messageFromWorker(message)));
+}
 
 /*
 console.log(workers);
@@ -183,8 +193,17 @@ function messageFromWorker(message) {
      Client.submit(message.submit[0], message.submit[1], message.submit[2], changeEndianness(message.submit[3]), (message.submit[4]));
   }
   if (message.nonce) {
-     console.log("Nonce: " + message.nonce);
+     console.log(message.workerNumber + ":" + message.nonce);
+     var hrTime = process.hrtime();
+     var timestamp = (hrTime[0] + hrTime[1] / 1000000000);
+     workers[message.workerNumber].hashrate = 50000 / (timestamp - workers[message.workerNumber].timestamp);
+     workers[message.workerNumber].timestamp = timestamp;
+     console.log(workers[message.workerNumber].hashrate);
   }
+
+  else {
+     console.log(message);
+  } 
 }
 
 
