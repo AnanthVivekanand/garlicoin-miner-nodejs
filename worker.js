@@ -154,12 +154,10 @@ class Miner {
 	}
 	startMining() {
 		let hash;
-let found = false;
 let nonce = this.randomNonce(4);
 console.log('\n[Start Mining with initial nonce:', nonce, ']');
 while (nonce++) {
         hash = this.getHash(nonce);
-        found = this.checkHash(hash);
         //console.log(hash, nonce, found ? '<- nonce FOUND!!' : '');
         if (nonce % 50000 == 0) {
                                 if (nonce > 8561950000) {
@@ -168,7 +166,8 @@ while (nonce++) {
 		                parentPort.postMessage({nonce: nonce, workerNumber: workerData.workerNumber});
 
         } 
-        if (found) {
+
+        if (this.checkHash(hash)) {
                 parentPort.postMessage({hash: hash, length: hash.length});
 		parentPort.postMessage({submit: ["KorkyMonster.testing", workerData.block.jobId, "00000000", (workerData.block.time), (nonce.toString(16))]});
                 this.verifyNonce(this.block, nonce);
@@ -178,6 +177,7 @@ while (nonce++) {
 
 //nonce++;
 //found = true;
+
 }
 
 	}

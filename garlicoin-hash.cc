@@ -53,22 +53,12 @@ NODE_MODULE_INITIALIZER(Local<Object> exports,
 
 void SumAllium(const Nan::FunctionCallbackInfo<Value>& args) {
  
-  if(args.Length() < 1) {
-    Nan::ThrowTypeError("1 argument expected");
-    return;
-  }  
+//  Local<Object> target = args[0]->ToObject();
 
-  Local<Object> target = args[0]->ToObject();
-
-  if(!node::Buffer::HasInstance(target)) {
-    Nan::ThrowTypeError("Function expects buffer as input");
-    return;
-  }
-
-  char* input = node::Buffer::Data(target);
+  //char* input = node::Buffer::Data(args[0]);
   char* output = new char[32];
 
-  allium_hash(input, output);
+  allium_hash(node::Buffer::Data(args[0]), output);
   
   args.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
 }
