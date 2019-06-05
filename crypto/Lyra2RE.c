@@ -147,3 +147,5 @@ void lyra2re2_hash(const char* input, char* output)
     
    	memcpy(output, hashA, 32);
 }
+
+//void alliumhash_scan(char header_no_nonce, uint32_t nonce, uint32_t
