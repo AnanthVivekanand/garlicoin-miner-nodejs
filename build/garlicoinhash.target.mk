@@ -84,17 +84,17 @@ INCS_Release := \
 	-I$(srcdir)/node_modules/nan
 
 OBJS := \
-	$(obj).target/$(TARGET)/Lyra2RE.o \
-	$(obj).target/$(TARGET)/Lyra2.o \
-	$(obj).target/$(TARGET)/Sponge.o \
-	$(obj).target/$(TARGET)/sha3/blake.o \
-	$(obj).target/$(TARGET)/sha3/bmw.o \
-	$(obj).target/$(TARGET)/sha3/cubehash.o \
-	$(obj).target/$(TARGET)/sha3/groestl.o \
-	$(obj).target/$(TARGET)/sha3/keccak.o \
-	$(obj).target/$(TARGET)/sha3/skein.o \
-	$(obj).target/$(TARGET)/scryptn.o \
-	$(obj).target/$(TARGET)/garlicoin-hash.o
+	$(obj).target/$(TARGET)/crypto/Lyra2RE.o \
+	$(obj).target/$(TARGET)/crypto/Lyra2.o \
+	$(obj).target/$(TARGET)/crypto/Sponge.o \
+	$(obj).target/$(TARGET)/crypto/sha3/blake.o \
+	$(obj).target/$(TARGET)/crypto/sha3/bmw.o \
+	$(obj).target/$(TARGET)/crypto/sha3/cubehash.o \
+	$(obj).target/$(TARGET)/crypto/sha3/groestl.o \
+	$(obj).target/$(TARGET)/crypto/sha3/keccak.o \
+	$(obj).target/$(TARGET)/crypto/sha3/skein.o \
+	$(obj).target/$(TARGET)/crypto/scryptn.o \
+	$(obj).target/$(TARGET)/crypto/garlicoin-hash.o
 
 # Add to the list of files we specially track dependencies for.
 all_deps += $(OBJS)
