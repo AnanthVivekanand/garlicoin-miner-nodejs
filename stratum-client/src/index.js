@@ -12,17 +12,17 @@ const defaultConfig = {
   "autoReconnectOnError": true
 };
 
-class Client {
-submit() {
-var args = Array.prototype.slice.call(arguments);
-args.unshift(this.client); // Make real array from arguments
-submitWork.apply(this, args);
-}
-  start(options) {
-    const client = new net.Socket();
-    
-    client.setEncoding('utf8');
+const client = new net.Socket();
+client.setEncoding('utf8');
 
+class Client {
+  submit(options) {
+    submitWork({
+      ...options,
+      client,
+    });
+  }
+  start(options) {
     const updatedOptions = extend({}, defaultConfig, options);
 
     validateConfig(updatedOptions);
@@ -48,15 +48,15 @@ submitWork.apply(this, args);
         onError: null,
         onAuthorize: null,
         onAuthorizeSuccess: null,
-	onAuthorizeFail: null,
+        onAuthorizeFail: null,
         onNewDifficulty: null,
         onSubscribe: null,
         onNewMiningWork: null,
-	onSubmitWorkSuccess: null,
-	onSubmitWorkFail: null,
+        onSubmitWorkSuccess: null,
+        onSubmitWorkFail: null,
       });
     });
-    
+
     return {
       client: client,
       submit: this.submit,
