@@ -1,6 +1,7 @@
 //Declare dependencies
 const client = require('./stratum-client/index.js');
 const crypto = require('crypto'); //Hashing libraries for SHA256
+const chalk = require('chalk');
 const {
   Worker, MessageChannel, MessagePort, isMainThread, parentPort
 } = require('worker_threads');
@@ -84,8 +85,8 @@ Client = client({
   onNewDifficulty: (newDiff) => { options.diff = newDiff}, //setDiff(newDiff),
   onSubscribe: (subscribeData) => console.log('[Subscribe]', subscribeData),
   onNewMiningWork: (newWork) => buildBlock(newWork),
-  onSubmitWorkSuccess: (error, result) => console.log("Yay! Our work was accepted!"),
-  onSubmitWorkFail: (error, result) => console.log("Oh no! Our work was refused because: "),
+  onSubmitWorkSuccess: (error, result) => console.log(chalk.green("Yay! Our work was accepted!")),
+  onSubmitWorkFail: (error, result) => console.log(chalk.red("Oh no! Our work was refused because: " + error)),
 });
 
 }
@@ -189,6 +190,7 @@ console.log(workers);
 
 function messageFromWorker(message) {
   if (message.submit) {
+     console.log(chalk.green("====== Sumbitting Share ======"));
      console.log(message.submit);
      Client.submit(message.submit[0], message.submit[1], message.submit[2], changeEndianness(message.submit[3]), (message.submit[4]));
   }
@@ -202,7 +204,7 @@ function messageFromWorker(message) {
   }
 
   else {
-     console.log(message);
+//     console.log(message);
   } 
 }
 
