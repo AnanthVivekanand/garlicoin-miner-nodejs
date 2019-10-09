@@ -51,7 +51,7 @@ NODE_MODULE_INITIALIZER(Local<Object> exports,
 }
 */
 
-void SumAllium(const Nan::FunctionCallbackInfo<Value>& args) {
+static void SumAllium(const Nan::FunctionCallbackInfo<Value>& args) {
  
 //  Local<Object> target = args[0]->ToObject();
 
@@ -67,9 +67,14 @@ void SumAllium(const Nan::FunctionCallbackInfo<Value>& args) {
 NODE_MODULE_INIT() {
   Isolate* isolate = context->GetIsolate();
 
- exports->Set(context, String::NewFromUtf8(
-      isolate, "SumAllium", NewStringType::kNormal).ToLocalChecked(),
-               Nan::New<v8::FunctionTemplate>(SumAllium)->GetFunction(context).ToLocalChecked()).FromJust();
+  AddonData* data = new AddonData(isolate, exports);
+  Local<External> external = External::New(isolate, data);
+  
+  exports->Set(context,
+	       String::NewFromUtf8(isolate, "SumAllium", NewStringType::kNormal)
+                  .ToLocalChecked(),
+               FunctionTemplate::New(isolate, SumAllium, external)->GetFunction(context).ToLocalChecked()).FromJust();
+
 }
 
 
