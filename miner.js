@@ -191,8 +191,8 @@ console.log(workers);
 function messageFromWorker(message) {
   if (message.submit) {
      console.log(chalk.green("====== Sumbitting Share ======"));
-     console.log(message.submit);
-     Client.submit(message.submit[0], message.submit[1], message.submit[2], changeEndianness(message.submit[3]), (message.submit[4]));
+     console.log([message.submit[0], (message.submit[1]), message.submit[2], changeEndianness(message.submit[3]), (message.submit[4])]);
+     Client.submit(message.submit[0], (message.submit[1]), message.submit[2], changeEndianness(message.submit[3]), (message.submit[4]));
   }
   if (message.nonce) {
      console.log(message.workerNumber + ":" + message.nonce);
